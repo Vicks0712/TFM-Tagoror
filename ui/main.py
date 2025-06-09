@@ -2,6 +2,7 @@ import streamlit as st
 
 from views.experiments import experiments, retriever_eval
 from views import home
+from views.rag import chat
 
 
 def main():
@@ -19,6 +20,9 @@ def main():
         experiments.run()
     elif st.session_state["view"] == "retriever_eval":
         retriever_eval.run()
+    elif st.session_state["view"] == "rag_chat":
+        chat.run()
+
 
 
 if __name__ == "__main__":
