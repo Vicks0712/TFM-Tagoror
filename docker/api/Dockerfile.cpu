@@ -1,0 +1,48 @@
+# Base Python image compatible with Apple Silicon
+FROM python:3.11-slim
+
+# Set working directory
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    gcc \
+    ffmpeg \
+    libpq-dev \
+    git \
+    zlib1g-dev \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Python dependencies
+COPY docker/api/requirements.txt .
+RUN pip install --no-cache-dir --upgrade pip
+RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --upgrade bitsandbytes
+RUN python3 -m nltk.downloader punkt
+
+# Pre-cache Hugging Face model (optional)
+RUN python3 -c "from transformers import AutoTokenizer, AutoModel; \
+    AutoTokenizer.from_pretrained('BAAI/bge-m3'); \
+    AutoModel.from_pretrained('BAAI/bge-m3')"
+
+# Pre-cache Hugging Face model: E5 multilingual
+RUN python3 -c "from sentence_transformers import SentenceTransformer; \
+    SentenceTransformer('intfloat/multilingual-e5-large-instruct')"
+
+# Pre-cache FastEmbed BM25 model
+RUN python3 -c "from fastembed import SparseTextEmbedding; \
+    SparseTextEmbedding(model_name='Qdrant/bm25')"
+
+# Copy application code
+COPY .. .
+
+# Set Python path
+ENV PYTHONPATH=/app:/app/api:/app/api
+
+# Optional: avoid unnecessary Hugging Face retries
+ENV HF_HUB_OFFLINE=false
+ENV TRANSFORMERS_OFFLINE=0
+
+# Run FastAPI server
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]

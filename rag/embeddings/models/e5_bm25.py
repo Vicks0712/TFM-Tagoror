@@ -1,11 +1,12 @@
 from typing import List, Dict
 from sentence_transformers import SentenceTransformer
 from fastembed import SparseTextEmbedding
-from rag.embeddings.base import EmbeddingModel
-from rag.config.logger import get_logger
+import torch
 from typing import Union
 
-logger = get_logger(__name__)
+from rag.config.logger import logger
+from rag.embeddings.base import EmbeddingModel
+
 
 
 class E5BM25Embedding(EmbeddingModel):
@@ -15,17 +16,20 @@ class E5BM25Embedding(EmbeddingModel):
         self.device = self._detect_device()
         self.dense_model = SentenceTransformer("intfloat/multilingual-e5-large-instruct")
         self.sparse_model = SparseTextEmbedding(model_name="Qdrant/bm25")
-        logger.info("E5BM25Embedding: Loaded dense E5 + sparse BM25FastEmbedModel")
+        logger.info("[E5BM25-EMBEDDING]: Loaded dense E5 + sparse BM25FastEmbedModel")
 
-    def _detect_device(self) -> str:
-        import torch  # Asegúrate de importar torch aquí o al inicio del archivo
-        if torch.cuda.is_available():
-            return "cuda"
-        elif hasattr(torch.backends, "mps") and torch.backends.mps.is_available():
-            return "mps"
-        return "cpu"
 
     def encode(self, text: Union[str, List[str]], **kwargs) -> Union[List[float], List[List[float]]]:
+        """
+        Generates dense embeddings for the given input text(s) using the E5 model.
+
+        Args:
+            text (Union[str, List[str]]): A single string or a list of strings to encode.
+            **kwargs: Additional keyword arguments (not used in this implementation).
+
+        Returns:
+            Union[List[float], List[List[float]]]: Dense embedding vector(s) for the input.
+        """
         if self.dense_model is None:
             raise RuntimeError("Dense model not initialized.")
 
@@ -43,6 +47,16 @@ class E5BM25Embedding(EmbeddingModel):
             )
 
     def encode_sparse(self, text: Union[str, List[str]], **kwargs) -> Union[Dict, List[Dict]]:
+        """
+        Generates sparse embeddings for the given input text(s) using the BM25 model.
+
+        Args:
+            text (Union[str, List[str]]): A single string or a list of strings to encode.
+            **kwargs: Additional keyword arguments (not used in this implementation).
+
+        Returns:
+            Union[Dict, List[Dict]]: Sparse embedding(s) as dictionaries with token_id: weight pairs.
+        """
         if self.sparse_model is None:
             raise RuntimeError("Sparse model not initialized.")
 

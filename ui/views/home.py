@@ -8,7 +8,7 @@ def get_base64_image(image_path):
         return base64.b64encode(img_file.read()).decode()
 
 
-logo_base64 = get_base64_image("./assets/siani.png")
+logo_base64 = get_base64_image("./assets/new-logo.png")
 
 
 def run():
@@ -98,7 +98,7 @@ def run():
         display: block;
         margin: 0 auto;
         padding: 25px;
-        width: 500px; /* Aumenta el tamaño, ajusta según lo desees */
+        width: 50; /* Aumenta el tamaño, ajusta según lo desees */
         max-width: 100%; /* Evita que se desborde en pantallas pequeñas */
     }
     
@@ -124,7 +124,7 @@ def run():
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
         if st.button("🔍 Ver Resumen del TFM", use_container_width=True, key="admin_button"):
-            st.session_state["view"] = "admin_login"
+            st.session_state["view"] = "summary"
             st.rerun()
 
         if st.button("📊 Ver Experimentos", use_container_width=True, key="user_button"):
@@ -134,3 +134,4 @@ def run():
         if st.button("💬 Probar el Chat RAG", use_container_width=True, key="chat_button"):
             st.session_state["view"] = "chat_rag"
             st.rerun()
+

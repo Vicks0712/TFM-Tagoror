@@ -2,7 +2,7 @@ import streamlit as st
 import requests
 
 
-from services.docs_services import (
+from services.document_services import (
     fetch_collections_raw,
     upload_document_to_collection,
     list_documents_in_collection,
@@ -207,13 +207,4 @@ def show_sidebar():
         st.sidebar.markdown("## 📁 Gestión de Documentos")
         st.sidebar.info("⚠️ Debes crear al menos una colección para habilitar esta sección.")
 
-    st.sidebar.divider()
-    if st.session_state.get("is_admin") == True:
-        if st.sidebar.button("⬅ Volver al menú principal", use_container_width=True):
-            st.session_state["view"] = "admin_options"
-            st.rerun()
-    else:
-        if st.sidebar.button("🚪 Cerrar sesión", use_container_width=True):
-            st.session_state.clear()
-            st.session_state["view"] = "home"
-            st.rerun()
+

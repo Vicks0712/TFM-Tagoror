@@ -1,7 +1,6 @@
 import os
 import requests
 from config.logger import logger
-import streamlit as st
 
 
 APP_URL = os.getenv("APP_URL", "http://localhost")
@@ -9,28 +8,16 @@ APP_PORT = os.getenv("APP_PORT_INTERNAL", "8000")
 API_URL = f"{APP_URL}:{APP_PORT}"
 
 
-def ask_question(collection_name, question=None, model=None, return_audio=False, audio_file=None, audio_format="mp3"):
-    url = f"{API_URL}/rag/ask-docs"
-
-    token = st.session_state.get("access_token", "")
-    headers = {}
-    if token:
-        headers["Authorization"] = f"Bearer {token}"
-
-    files = {}
-    if audio_file:
-        files["audio"] = ("audio.wav", audio_file, "audio/wav")
-    else:
-        files["audio"] = ("", "", "application/octet-stream")
+def ask_question(collection_name, question=None):
+    url = f"{API_URL}/rag/chat/generate-response"
 
     data = {
         "collection_name": collection_name,
         "question": question or "",
-        "model": model or "",
     }
 
     try:
-        response = requests.post(url, data=data, files=files, headers=headers)  # ⬅️ Añadir headers
+        response = requests.post(url, data=data)  # ⬅️ Añadir headers
         response.raise_for_status()
         logger.info("Respuesta recibida correctamente.")
         return response.json()

@@ -3,7 +3,7 @@ import streamlit as st
 from views.experiments import experiments, retriever_eval
 from views import home
 from views.rag import chat
-
+from views.summary import summary
 
 def main():
     st.set_page_config(page_title="TFM - Sistema RAG", layout="centered")
@@ -20,9 +20,10 @@ def main():
         experiments.run()
     elif st.session_state["view"] == "retriever_eval":
         retriever_eval.run()
-    elif st.session_state["view"] == "rag_chat":
+    elif st.session_state["view"] == "chat_rag":
         chat.run()
-
+    elif st.session_state["view"] == "summary":
+        summary.run()
 
 
 if __name__ == "__main__":

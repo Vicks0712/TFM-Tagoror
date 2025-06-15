@@ -1,11 +1,13 @@
 import streamlit as st
 
 from services.rag_services import ask_question
-from components.rag.components.side_bar import show_sidebar
+from components.rag.side_bar import show_sidebar
 from services.document_services import list_documents_in_collection
+from streamlit_extras.stylable_container import stylable_container
 
 
 def run():
+    print("Entrando en chat.run()")
     show_sidebar()
 
     selected_collection = st.session_state.get("selected_collection")
@@ -54,3 +56,37 @@ def run():
                 })
             except Exception as e:
                 st.error(f"❌ Error en la consulta: {e}")
+
+    st.markdown("<br>", unsafe_allow_html=True)
+    col1, col2, col3 = st.columns([0.5, 3, 0.5])
+    with col2:
+        with stylable_container(
+                key="back_button_style",
+                css_styles="""
+                    button {
+                        background: white !important;
+                        color: #0d47a1 !important;
+                        border: 2px solid #0d47a1;
+                        border-radius: 12px;
+                        padding: 1rem 4rem;
+                        font-size: 1.1rem;
+                        font-weight: 600;
+                        transition: all 0.3s ease;
+                        margin: 0.5rem 0;
+                        position: relative;
+                        overflow: hidden;
+                        width: 100%;
+                    }
+                    button:hover {
+                        background: #e3f2fd !important;
+                        color: #0d47a1 !important;
+                    }
+                    button:active {
+                        transform: translateY(-1px) !important;
+                    }
+                    """
+        ):
+            if st.button("⬅ Volver al inicio", use_container_width=True, key="back_to_home"):
+                st.session_state["view"] = "home"
+                st.rerun()
+

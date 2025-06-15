@@ -1,0 +1,54 @@
+name: "TFM"
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: docker/api/Dockerfile.cpu
+    image: rag-api
+    ports:
+      - "${APP_PORT_EXTERNAL}:${APP_PORT_INTERNAL}"
+    env_file:
+      - .env
+    container_name: rag-api
+    hostname: rag-api
+    networks:
+      - rag_shared_network
+    restart: unless-stopped
+
+
+  ui:
+    build:
+      context: .
+      dockerfile: docker/ui/Dockerfile
+    image: rag-ui
+    container_name: rag-ui
+    hostname: rag-ui
+    env_file:
+      - .env
+    ports:
+      - "${UI_PORT_EXTERNAL}:${UI_PORT_INTERNAL}" # Streamlit corre en el puerto 8501
+    networks:
+      - rag_shared_network
+    restart: always
+    depends_on:
+      - api
+
+  qdrant:
+    image: qdrant/qdrant:latest
+    ports:
+      - "${QDRANT_PORT_EXTERNAL}:${QDRANT_PORT_INTERNAL}"
+    container_name: qdrant
+    hostname: qdrant
+    restart: unless-stopped
+    volumes:
+      - qdrant_data:/qdrant/storage
+    networks:
+      - rag_shared_network
+
+volumes:
+  qdrant_data:
+
+networks:
+  rag_shared_network:
+    external: true
